@@ -5,6 +5,7 @@ import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import LightRays from '../LightRays'
 import MagneticButton from '../MagneticButton'
+import StarBorder from '../StarBorder'
 import '../styles/home.css'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -74,10 +75,10 @@ export default function Home() {
               AssistFlow handles the inbox so your team handles what matters.
             </p>
             <div className="hero-ctas hero-reveal" id="cta">
-              <MagneticButton href="/signup" className="btn-primary" id="cta-primary">
+              <StarBorder as={MagneticButton} href="/signup" className="btn-large" id="cta-primary" color="cyan">
                 Start free — no credit card
                 <span className="btn-shine" aria-hidden="true" />
-              </MagneticButton>
+              </StarBorder>
               <Link to="/features" className="btn-secondary" id="cta-secondary">
                 See how it works
                 <span className="btn-arrow" aria-hidden="true">→</span>
@@ -189,10 +190,10 @@ export default function Home() {
           <h2 className="section-title">Ready to stop drowning in tickets?</h2>
           <p className="section-subtitle">Join 200+ startups already using AssistFlow.</p>
           <div className="hero-ctas" style={{ justifyContent: 'center', marginTop: 'var(--space-8)' }}>
-            <Link to="/signup" className="btn-primary">
+            <StarBorder as={Link} to="/signup" className="btn-large" color="cyan">
               Start free — no credit card
               <span className="btn-shine" aria-hidden="true" />
-            </Link>
+            </StarBorder>
           </div>
         </div>
       </section>

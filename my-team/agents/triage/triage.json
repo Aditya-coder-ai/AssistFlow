@@ -1,0 +1,10 @@
+{
+  "name": "triage",
+  "description": "Intelligent customer support triage agent for AssistFlow.",
+  "instruction": { "$file": "instruction.md" },
+  "toolsets": ["POD"],
+  "visibility": "POD",
+  "permissions": {
+    "grants": []
+  }
+}

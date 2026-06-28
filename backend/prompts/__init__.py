@@ -1,0 +1,24 @@
+# Prompts package for AssistFlow AI pipeline
+from prompts.system_prompts import (
+    MASTER_TRIAGE,
+    REPLY_DRAFT,
+    THREAD_SUMMARISER,
+    CHURN_RISK_SCORE,
+    KB_GAP_DETECTOR,
+    ISSUE_CLUSTERING_DIGEST,
+    PROACTIVE_OUTREACH,
+    ACTION_CONFIRMATION,
+    PROMPT_REGISTRY,
+)
+
+__all__ = [
+    "MASTER_TRIAGE",
+    "REPLY_DRAFT",
+    "THREAD_SUMMARISER",
+    "CHURN_RISK_SCORE",
+    "KB_GAP_DETECTOR",
+    "ISSUE_CLUSTERING_DIGEST",
+    "PROACTIVE_OUTREACH",
+    "ACTION_CONFIRMATION",
+    "PROMPT_REGISTRY",
+]

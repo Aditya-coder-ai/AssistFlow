@@ -1,35 +1,42 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import '../styles/app.css'
 
-const metrics = [
-  { label: 'CSAT Score', value: '4.6', suffix: '/5', change: '+0.3', up: true },
-  { label: 'Deflection Rate', value: '84', suffix: '%', change: '+12%', up: true },
-  { label: 'Avg Resolution', value: '18', suffix: 's', change: '-4s', up: true },
-  { label: 'Open Tickets', value: '23', suffix: '', change: '+5', up: false },
-]
-
-const recentTickets = [
-  { id: 'TK-1042', customer: 'Sarah Chen', subject: 'Refund for double charge', status: 'resolved', channel: 'email', time: '2m ago', sentiment: 'neutral' },
-  { id: 'TK-1041', customer: 'James Wright', subject: 'Can\'t login to dashboard', status: 'ai-handling', channel: 'chat', time: '5m ago', sentiment: 'negative' },
-  { id: 'TK-1040', customer: 'Maria Lopez', subject: 'Feature request: Slack integration', status: 'open', channel: 'email', time: '12m ago', sentiment: 'positive' },
-  { id: 'TK-1039', customer: 'David Kim', subject: 'API rate limit exceeded', status: 'escalated', channel: 'email', time: '18m ago', sentiment: 'negative' },
-  { id: 'TK-1038', customer: 'Emma Davis', subject: 'How to export ticket data?', status: 'resolved', channel: 'chat', time: '25m ago', sentiment: 'positive' },
-]
-
-const topIssues = [
-  { label: 'Login failures', count: 47, pct: 85 },
-  { label: 'Billing questions', count: 32, pct: 60 },
-  { label: 'API errors', count: 21, pct: 40 },
-  { label: 'Feature requests', count: 15, pct: 28 },
-]
-
-const churnRisks = [
-  { customer: 'Acme Corp', score: 'High', reason: '3 escalations in 7 days', color: '#ef4444' },
-  { customer: 'TechStart Inc', score: 'Medium', reason: 'Declining CSAT trend', color: '#f59e0b' },
-  { customer: 'BuildFast', score: 'Low', reason: 'Reduced ticket volume', color: '#22c55e' },
-]
-
 export default function Dashboard() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('http://localhost:3000/api/dashboard/stats')
+      .then(res => res.json())
+      .then(stats => {
+        setData(stats);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to load dashboard metrics:', err);
+        setLoading(false);
+      });
+  }, []);
+
+  // Initial fallback states if loading or API fails
+  const metrics = data?.metrics || [
+    { label: 'CSAT Score', value: '4.6', suffix: '/5', change: '+0.3', up: true },
+    { label: 'Deflection Rate', value: '84', suffix: '%', change: '+12%', up: true },
+    { label: 'Avg Resolution', value: '18', suffix: 's', change: '-4s', up: true },
+    { label: 'Open Tickets', value: '23', suffix: '', change: '+5', up: false },
+  ];
+
+  const recentTickets = data?.recentTickets || [];
+  const topIssues = data?.topIssues || [];
+  const churnRisks = data?.churnRisks || [];
+  const aiStats = data?.aiStats || {
+    autoResolved: '84%',
+    avgConfidence: '92%',
+    avgResponseTime: '1.8s',
+    escalationRate: '16%'
+  };
+
   return (
     <div className="dashboard">
       {/* Metrics */}
@@ -67,6 +74,12 @@ export default function Dashboard() {
                 </div>
               </Link>
             ))}
+            {recentTickets.length === 0 && !loading && (
+              <div className="inbox-empty" style={{ padding: '24px 0' }}>No tickets in your feed.</div>
+            )}
+            {loading && (
+              <div className="inbox-empty" style={{ padding: '24px 0' }}>Loading live ticket feed...</div>
+            )}
           </div>
         </div>
 
@@ -87,6 +100,9 @@ export default function Dashboard() {
                 </div>
               </div>
             ))}
+            {topIssues.length === 0 && (
+              <div className="inbox-empty" style={{ padding: '24px 0' }}>No issues logged.</div>
+            )}
           </div>
         </div>
 
@@ -105,6 +121,9 @@ export default function Dashboard() {
                 <span className="churn-badge" style={{ color: c.color, borderColor: c.color + '40' }}>{c.score}</span>
               </div>
             ))}
+            {churnRisks.length === 0 && (
+              <div className="inbox-empty" style={{ padding: '24px 0' }}>No churn alerts.</div>
+            )}
           </div>
         </div>
 
@@ -116,19 +135,19 @@ export default function Dashboard() {
           <div className="ai-stats">
             <div className="ai-stat-row">
               <span className="ai-stat-label">Auto-resolved</span>
-              <span className="ai-stat-value">84%</span>
+              <span className="ai-stat-value">{aiStats.autoResolved}</span>
             </div>
             <div className="ai-stat-row">
               <span className="ai-stat-label">Avg confidence</span>
-              <span className="ai-stat-value">92%</span>
+              <span className="ai-stat-value">{aiStats.avgConfidence}</span>
             </div>
             <div className="ai-stat-row">
               <span className="ai-stat-label">Avg response time</span>
-              <span className="ai-stat-value">1.8s</span>
+              <span className="ai-stat-value">{aiStats.avgResponseTime}</span>
             </div>
             <div className="ai-stat-row">
               <span className="ai-stat-label">Escalation rate</span>
-              <span className="ai-stat-value">16%</span>
+              <span className="ai-stat-value">{aiStats.escalationRate}</span>
             </div>
           </div>
         </div>

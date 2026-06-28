@@ -1,4 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
+import StarBorder from '../StarBorder'
 import '../styles/layouts.css'
 
 const navLinks = [
@@ -45,10 +46,10 @@ export default function MarketingLayout() {
 
           <div className="navbar-actions">
             <Link to="/login" className="navbar-link">Log in</Link>
-            <Link to="/signup" className="navbar-cta" id="nav-get-started">
+            <StarBorder as={Link} to="/signup" className="btn-small" id="nav-get-started" color="cyan">
               Get Started
               <span className="navbar-cta-arrow" aria-hidden="true">→</span>
-            </Link>
+            </StarBorder>
           </div>
         </nav>
       </header>

@@ -1,25 +1,34 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import '../styles/app.css'
-
-const allTickets = [
-  { id: 'TK-1042', customer: 'Sarah Chen', email: 'sarah@acme.co', subject: 'Refund for double charge on invoice #4821', status: 'resolved', channel: 'email', intent: 'refund', time: '2m ago', sentiment: 'neutral', agent: 'AI' },
-  { id: 'TK-1041', customer: 'James Wright', email: 'james@techstart.io', subject: 'Can\'t login to dashboard — password reset not working', status: 'ai-handling', channel: 'chat', intent: 'bug', time: '5m ago', sentiment: 'negative', agent: 'AI' },
-  { id: 'TK-1040', customer: 'Maria Lopez', email: 'maria@buildf.co', subject: 'Feature request: Slack integration for ticket alerts', status: 'open', channel: 'email', intent: 'feature', time: '12m ago', sentiment: 'positive', agent: 'Unassigned' },
-  { id: 'TK-1039', customer: 'David Kim', email: 'david@scaleup.dev', subject: 'API rate limit exceeded on /v1/tickets endpoint', status: 'escalated', channel: 'email', intent: 'bug', time: '18m ago', sentiment: 'negative', agent: 'Human' },
-  { id: 'TK-1038', customer: 'Emma Davis', email: 'emma@foundros.com', subject: 'How to export ticket data to CSV?', status: 'resolved', channel: 'chat', intent: 'how-to', time: '25m ago', sentiment: 'positive', agent: 'AI' },
-  { id: 'TK-1037', customer: 'Alex Turner', email: 'alex@launchpad.io', subject: 'Webhook not firing on ticket close event', status: 'open', channel: 'email', intent: 'bug', time: '32m ago', sentiment: 'neutral', agent: 'Unassigned' },
-  { id: 'TK-1036', customer: 'Priya Sharma', email: 'priya@shipfast.dev', subject: 'Billing cycle changed without notice', status: 'escalated', channel: 'email', intent: 'billing', time: '45m ago', sentiment: 'negative', agent: 'Human' },
-  { id: 'TK-1035', customer: 'Tom Bradley', email: 'tom@acme.co', subject: 'How do I add team members to my workspace?', status: 'resolved', channel: 'chat', intent: 'how-to', time: '1h ago', sentiment: 'positive', agent: 'AI' },
-]
 
 const statusFilters = ['all', 'open', 'ai-handling', 'escalated', 'resolved']
 
 export default function TicketInbox() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [search, setSearch] = useState('')
+  const [tickets, setTickets] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  const filtered = allTickets.filter(t => {
+  useEffect(() => {
+    fetch('http://localhost:3000/api/tickets')
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch tickets')
+        return res.json()
+      })
+      .then(data => {
+        setTickets(data)
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error(err)
+        setError(err.message)
+        setLoading(false)
+      })
+  }, [])
+
+  const filtered = tickets.filter(t => {
     if (statusFilter !== 'all' && t.status !== statusFilter) return false
     if (search && !t.subject.toLowerCase().includes(search.toLowerCase()) && !t.customer.toLowerCase().includes(search.toLowerCase())) return false
     return true
@@ -63,14 +72,18 @@ export default function TicketInbox() {
               <span className={`ticket-status ${t.status}`}>{t.status.replace('-', ' ')}</span>
             </span>
             <span className="inbox-col-channel">{t.channel}</span>
-            <span className="inbox-col-time">{t.time}</span>
+            <span className="inbox-col-time">
+              {new Date(t.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+            </span>
             <span className="inbox-col-actions">
               <button className="inbox-action-btn" onClick={e => e.preventDefault()}>Assign</button>
               <button className="inbox-action-btn" onClick={e => e.preventDefault()}>Escalate</button>
             </span>
           </Link>
         ))}
-        {filtered.length === 0 && (
+        {loading && <div className="inbox-empty">Loading tickets from Postgres...</div>}
+        {error && <div className="inbox-empty" style={{color: '#ff4d4f'}}>Error: {error}. Is the backend running?</div>}
+        {!loading && !error && filtered.length === 0 && (
           <div className="inbox-empty">No tickets match your filters.</div>
         )}
       </div>

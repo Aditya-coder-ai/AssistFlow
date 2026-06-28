@@ -1,4 +1,7 @@
-import { Outlet, Link, useLocation } from 'react-router-dom'
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
+import { signOut } from 'firebase/auth'
+import { auth } from '../firebase'
+import { useAuth } from '../contexts/AuthContext'
 import '../styles/layouts.css'
 
 const sidebarLinks = [
@@ -9,6 +12,17 @@ const sidebarLinks = [
 
 export default function AppLayout() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { currentUser } = useAuth()
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth)
+      navigate('/login')
+    } catch (error) {
+      console.error('Failed to sign out', error)
+    }
+  }
 
   return (
     <div className="app-layout">
@@ -36,13 +50,23 @@ export default function AppLayout() {
         </nav>
 
         <div className="sidebar-bottom">
-          <div className="sidebar-user">
-            <div className="sidebar-avatar">F</div>
+          <div className="sidebar-user" style={{ marginBottom: '12px' }}>
+            <div className="sidebar-avatar">
+              {currentUser?.email ? currentUser.email.charAt(0).toUpperCase() : 'U'}
+            </div>
             <div>
-              <p className="sidebar-user-name">Founder</p>
+              <p className="sidebar-user-name" style={{ maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {currentUser?.email || 'User'}
+              </p>
               <p className="sidebar-user-plan">Pro Plan</p>
             </div>
           </div>
+          <button 
+            onClick={handleSignOut}
+            style={{ width: '100%', padding: '8px', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: '6px', color: 'var(--color-text-secondary)', fontSize: '12px', cursor: 'pointer' }}
+          >
+            Sign out
+          </button>
         </div>
       </aside>
 
